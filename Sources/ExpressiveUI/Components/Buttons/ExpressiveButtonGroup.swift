@@ -108,7 +108,7 @@ public struct ExpressiveButtonGroup: View {
         }
         .frame(height: height)
         .opacity(isEnabled ? 1 : 0.38)
-        .animation(.spring(response: 0.28, dampingFraction: 0.76), value: pressedIndex)
+        .animation(ExpressiveMotion.fastSpatial, value: pressedIndex)
     }
 
     @ViewBuilder
@@ -129,6 +129,9 @@ public struct ExpressiveButtonGroup: View {
                 foreground: checked ? colors.onPrimary : colors.onSurfaceVariant
             )
             .background(checked ? colors.primary : colors.surfaceContainer, in: Capsule())
+            // Checking a button is a colour change and nothing else, so it snaps rather than
+            // travelling with the press spring above it.
+            .animation(ExpressiveMotion.fastEffects, value: checked)
         }
         .buttonStyle(.plain)
         .disabled(!item.isEnabled)

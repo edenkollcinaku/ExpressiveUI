@@ -59,7 +59,6 @@ public struct ExpressiveConnectedButtonGroup<Value: Hashable>: View {
     private let pressedInnerCorner: CGFloat = 4
 
     private let expandedRatio: CGFloat
-    private let axis: Axis
     private let options: [ExpressiveConnectedButtonGroupOption<Value>]
     private let selection: Selection
 
@@ -73,12 +72,10 @@ public struct ExpressiveConnectedButtonGroup<Value: Hashable>: View {
     /// One choice out of the set.
     public init(
         selection: Binding<Value>,
-        axis: Axis = .horizontal,
         expandedRatio: CGFloat = 0.15,
         options: [ExpressiveConnectedButtonGroupOption<Value>]
     ) {
         self.selection = .single(selection)
-        self.axis = axis
         self.expandedRatio = expandedRatio
         self.options = options
     }
@@ -86,50 +83,35 @@ public struct ExpressiveConnectedButtonGroup<Value: Hashable>: View {
     /// Any number of choices, including none.
     public init(
         selection: Binding<Set<Value>>,
-        axis: Axis = .horizontal,
         expandedRatio: CGFloat = 0.15,
         options: [ExpressiveConnectedButtonGroupOption<Value>]
     ) {
         self.selection = .multiple(selection)
-        self.axis = axis
         self.expandedRatio = expandedRatio
         self.options = options
     }
 
     public var body: some View {
-        Group {
-            if axis == .horizontal {
-                ButtonGroupRow(
-                    spacing: spacing,
-                    expandedRatio: expandedRatio,
-                    pressedIndex: pressedIndex,
-                    // Every segment carries a weight, so they share the row equally and none of
-                    // them can overflow — a segmented control that hid a choice in a menu would
-                    // stop being a segmented control.
-                    weights: Array(repeating: 1, count: options.count),
-                    onVisibleCountChange: { _ in }
-                ) {
-                    ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
-                        segment(option, at: index)
-                    }
-
-                    // The row keeps a slot for an overflow indicator; a weighted group never uses
-                    // it, and an empty view is what nothing looks like.
-                    Color.clear.frame(width: 0)
-                }
-                .frame(height: height)
-            } else {
-                VStack(spacing: spacing) {
-                    ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
-                        segment(option, at: index)
-                            .frame(height: height)
-                    }
-                }
+        ButtonGroupRow(
+            spacing: spacing,
+            expandedRatio: expandedRatio,
+            pressedIndex: pressedIndex,
+            // Every segment carries a weight, so they share the row equally and none of them can
+            // overflow — a segmented control that hid a choice in a menu would stop being one.
+            weights: Array(repeating: 1, count: options.count),
+            onVisibleCountChange: { _ in }
+        ) {
+            ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
+                segment(option, at: index)
             }
+
+            // The row keeps a slot for an overflow indicator; a weighted group never uses it, and
+            // an empty view is what nothing looks like.
+            Color.clear.frame(width: 0)
         }
+        .frame(height: height)
         .opacity(isEnabled ? 1 : 0.38)
-        .animation(.spring(response: 0.28, dampingFraction: 0.76), value: pressedIndex)
-        .animation(.spring(response: 0.34, dampingFraction: 0.86), value: selectedValues)
+        .animation(ExpressiveMotion.fastSpatial, value: pressedIndex)
     }
 
     private func segment(
@@ -150,6 +132,10 @@ public struct ExpressiveConnectedButtonGroup<Value: Hashable>: View {
                 checked ? colors.primary : colors.surfaceContainer,
                 in: shape(at: index, checked: checked, pressed: pressedIndex == index)
             )
+            // Selecting a segment is a colour change and a corner change: the colour lands on the
+            // effects spring, the corners travel on the spatial one.
+            .animation(ExpressiveMotion.fastEffects, value: checked)
+            .animation(ExpressiveMotion.fastSpatial, value: pressedIndex == index)
         }
         .buttonStyle(.plain)
         .disabled(!option.isEnabled)
@@ -170,13 +156,15 @@ public struct ExpressiveConnectedButtonGroup<Value: Hashable>: View {
         let outer = height / 2
         let inner = pressed ? pressedInnerCorner : innerCorner
         // `SelectedInnerCornerCornerSizePercent` is 50: selected, both sides go full.
-        let first = checked || index == 0 ? outer : inner
-        let last = checked || index == options.count - 1 ? outer : inner
-        // Vertically the same rule turns a quarter: the group's outside is its top and bottom.
+        let leading = checked || index == 0 ? outer : inner
+        let trailing = checked || index == options.count - 1 ? outer : inner
         return UnevenRoundedRectangle(
-            cornerRadii: axis == .horizontal
-                ? .init(topLeading: first, bottomLeading: first, bottomTrailing: last, topTrailing: last)
-                : .init(topLeading: first, bottomLeading: last, bottomTrailing: last, topTrailing: first),
+            cornerRadii: .init(
+                topLeading: leading,
+                bottomLeading: leading,
+                bottomTrailing: trailing,
+                topTrailing: trailing
+            ),
             style: .continuous
         )
     }

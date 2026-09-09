@@ -102,9 +102,13 @@ public struct ExpressiveSwitchStyle: ToggleStyle {
                         )
                     }
                     .frame(width: trackWidth, height: trackHeight)
+                    // The colour is nearest the change, so it takes the effects spring while the
+                    // thumb's travel below keeps the spatial one.
+                    .animation(ExpressiveMotion.fastEffects, value: isOn)
 
                 Circle()
                     .fill(isOn ? colors.onPrimary : colors.outline)
+                    .animation(ExpressiveMotion.fastEffects, value: isOn)
                     .frame(width: thumbSize, height: thumbSize)
                     .overlay {
                         if isOn {
@@ -117,8 +121,8 @@ public struct ExpressiveSwitchStyle: ToggleStyle {
             }
             .frame(width: trackWidth, height: trackHeight)
             .opacity(isEnabled ? 1 : 0.38)
-            .animation(.spring(response: 0.28, dampingFraction: 0.78), value: isOn)
-            .animation(.spring(response: 0.22, dampingFraction: 0.85), value: isPressed)
+            .animation(ExpressiveMotion.fastSpatial, value: isOn)
+            .animation(ExpressiveMotion.fastSpatial, value: isPressed)
             .contentShape(Capsule())
             .onTapGesture { configuration.isOn.toggle() }
             .gesture(

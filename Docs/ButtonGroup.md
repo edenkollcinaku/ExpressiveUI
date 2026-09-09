@@ -72,17 +72,6 @@ The corner rules *are* the component. A segment is a pill where the group meets 
 barely rounded where one segment meets the next; a selected segment goes full on both sides, because
 it is the one being read rather than part of a run.
 
-### Vertical
-
-Compose has no vertical `ButtonGroup`; its vertical sample is a plain `Column` of toggle buttons
-wearing the connected shapes. Here that is an axis on the connected group, which saves you
-reassembling the corner rules by hand:
-
-```swift
-ExpressiveConnectedButtonGroup(selection: $range, axis: .vertical, options: options)
-```
-
-The corner rule turns a quarter with it: the group's outside is now its top and bottom.
 
 ## The squeeze
 
@@ -93,6 +82,20 @@ neighbours give up that much between them, so the group's own width never change
 A neighbour is never asked to give up more than 24pt — `ButtonDefaults.ContentPadding`, past which
 its label would start being clipped rather than tightened. When the cap bites, the pressed button
 grows by less than the ratio asked for, so the row's own width still never changes.
+
+## Motion
+
+Compose does not tune a spring per component; it names six and every component asks for one by role.
+`ExpressiveMotion` carries all six, converted from `ExpressiveMotionTokens`:
+
+| Role | Damping | Stiffness | Used for |
+| --- | --- | --- | --- |
+| `fastSpatial` | 0.6 | 800 | the press squeeze, the switch's thumb, the FAB menu opening |
+| `fastEffects` | 1.0 | 3800 | every colour change |
+
+Keeping those apart is what makes the control feel like the Android one. A colour that eases as
+slowly as a movement reads as a fade; on an effects spring it lands in about a tenth of a second,
+while the geometry keeps the looser spatial spring and its slight overshoot.
 
 ## Geometry
 

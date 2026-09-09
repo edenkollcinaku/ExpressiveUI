@@ -121,7 +121,7 @@ public struct ExpressiveFABMenu: View {
 
     private var fab: some View {
         Button {
-            withAnimation(.spring(response: 0.46, dampingFraction: 0.78)) {
+            withAnimation(ExpressiveMotion.fastSpatial) {
                 isOpen.wrappedValue.toggle()
             }
         } label: {
@@ -152,7 +152,7 @@ public struct ExpressiveFABMenu: View {
     }
 
     private func close() {
-        withAnimation(.spring(response: 0.34, dampingFraction: 0.78)) {
+        withAnimation(ExpressiveMotion.fastSpatial) {
             isOpen.wrappedValue = false
         }
     }
@@ -193,7 +193,7 @@ public struct ExpressiveFABMenu: View {
             .opacity(isOpen ? 1 : 0)
             .allowsHitTesting(isOpen)
             .accessibilityHidden(!isOpen)
-            .animation(.spring(response: 0.38, dampingFraction: 0.78).delay(delay), value: isOpen)
+            .animation(ExpressiveMotion.fastSpatial.delay(delay), value: isOpen)
         }
     }
 
@@ -203,7 +203,7 @@ public struct ExpressiveFABMenu: View {
             configuration.label
                 .scaleEffect(configuration.isPressed ? 0.94 : 1)
                 .opacity(configuration.isPressed ? 0.88 : 1)
-                .animation(.spring(response: 0.24, dampingFraction: 0.74), value: configuration.isPressed)
+                .animation(ExpressiveMotion.fastSpatial, value: configuration.isPressed)
         }
     }
 }
