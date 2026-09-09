@@ -65,6 +65,7 @@ spec names rather than at ones tuned by hand.
 | Switch | `.toggleStyle(.expressive)` | [Docs/Switch.md](Docs/Switch.md) |
 | FAB menu | `ExpressiveFABMenu` | [Docs/FABMenu.md](Docs/FABMenu.md) |
 | Button group | `ExpressiveButtonGroup`, `ExpressiveConnectedButtonGroup` | [Docs/ButtonGroup.md](Docs/ButtonGroup.md) |
+| Segmented buttons | `ExpressiveSegmentedButtons` | [Docs/SegmentedButtons.md](Docs/SegmentedButtons.md) |
 
 ![The five button variants, light and dark](Docs/Images/button-variants.png)
 
