@@ -59,6 +59,8 @@ Components read the set from the environment, so styling is one call and never p
 | --- | --- | --- |
 | Switch | `.toggleStyle(.expressive)` | [Docs/Switch.md](Docs/Switch.md) |
 
+![The switch off and on, in light and dark](Docs/Images/switch-overview.png)
+
 More land progressively — dialog, button group, menu, and container transform are queued, roughly
 in that order. `ExpressiveColors` gains roles as they arrive; additions are minor versions and
 existing initialiser calls keep compiling.

@@ -2,10 +2,28 @@
 
 Material 3's `Switch`, which is a different control from the one `Toggle` draws by default.
 
+![The switch off and on, in light and dark](Images/switch-overview.png)
+
 ```swift
 Toggle("Reminders", isOn: $remindersOn)
     .toggleStyle(.expressive)
 ```
+
+## Anatomy
+
+![The parts of the switch: track, track outline, handle, and icon](Images/switch-anatomy.png)
+
+1. **Track** — the 52x32 capsule the handle travels in.
+2. **Track outline** — 2pt, off only. On, the track is a solid fill and the outline disappears.
+3. **Handle** — 16pt off, 24pt on, 28pt while pressed.
+4. **Icon** — the check, on only.
+
+## States
+
+![Off and on, enabled and disabled, in light and dark](Images/switch-states.png)
+
+Pressing grows the handle to 28pt for as long as the finger is down, then it settles back. Disabled
+drops the whole control to 38% opacity and stops responding.
 
 ## Geometry
 
@@ -33,8 +51,8 @@ grow around them rather than shifting as it scales.
 | Thumb | `outline` | `onPrimary` |
 | Check glyph | — | `onPrimaryContainer` |
 
-The check is the accent again, not a hole punched in the thumb. Disabled drops the whole control to
-38% opacity, matching Material's disabled alpha.
+The check is the accent again, not a hole punched in the thumb. Disabled's 38% opacity is Material's
+disabled alpha.
 
 ## Why a `ToggleStyle`
 
@@ -43,3 +61,12 @@ label itself — a `ToggleStyle` owns the whole control, so one that renders onl
 silently discard whatever the call site put in the `Toggle`'s body.
 
 If your row lays out its own text, pass an empty label; the trailing spacer collapses to nothing.
+
+## Images
+
+The plates above are rendered from the shipping component, not drawn by hand, so they cannot drift
+away from what the code does. Regenerate them with:
+
+```
+swift run --package-path Tools/ScreenshotGenerator
+```
