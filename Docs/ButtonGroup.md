@@ -24,6 +24,26 @@ The initialiser you call decides the kind of button, matching Compose's two:
 | `.init(label:systemImage:action:)` | `clickableItem` | Runs an action. Always filled. |
 | `.init(label:systemImage:isOn:)` | `toggleableItem` | Carries a checked state. Filled when checked, `surfaceContainer` when not. |
 
+### Weights
+
+A button sizes itself to its label. Give it a `weight` and it takes that share of whatever is left
+over instead — the same rule as Compose's `Modifier.weight`:
+
+```swift
+ExpressiveButtonGroup(items: [
+    .init(label: "Cancel", weight: 1) { dismiss() },
+    .init(label: "Save", weight: 2) { save() }
+])
+```
+
+### Overflow
+
+Buttons that do not fit collapse into a menu behind a trailing indicator, which is what Compose's
+`overflowIndicator` does. Nothing is dropped and nothing wraps: the menu carries the same labels,
+icons and actions, and the indicator is hidden from accessibility while everything fits.
+
+A group whose buttons all carry weights never overflows — they share the width they are given.
+
 ## Connected
 
 ![A connected button group, light and dark](Images/connected-button-group-overview.png)
@@ -52,16 +72,27 @@ The corner rules *are* the component. A segment is a pill where the group meets 
 barely rounded where one segment meets the next; a selected segment goes full on both sides, because
 it is the one being read rather than part of a run.
 
+### Vertical
+
+Compose has no vertical `ButtonGroup`; its vertical sample is a plain `Column` of toggle buttons
+wearing the connected shapes. Here that is an axis on the connected group, which saves you
+reassembling the corner rules by hand:
+
+```swift
+ExpressiveConnectedButtonGroup(selection: $range, axis: .vertical, options: options)
+```
+
+The corner rule turns a quarter with it: the group's outside is now its top and bottom.
+
 ## The squeeze
 
 Pressing a button expands it by 15% of its width — `ButtonGroupDefaults.ExpandedRatio` — and its
 neighbours give up that much between them, so the group's own width never changes. Pass
 `expandedRatio:` to change it; `0` turns it off.
 
-Both groups share their width equally between buttons rather than sizing each to its label. Compose
-measures children intrinsically and hands the leftovers to a per-item `weight`; that has no cheap
-equivalent in SwiftUI, and an exact squeeze needs a width to expand from. A label that does not fit
-shrinks rather than wraps.
+A neighbour is never asked to give up more than 24pt — `ButtonDefaults.ContentPadding`, past which
+its label would start being clipped rather than tightened. When the cap bites, the pressed button
+grows by less than the ratio asked for, so the row's own width still never changes.
 
 ## Geometry
 
@@ -81,20 +112,3 @@ shrinks rather than wraps.
 | Unselected | `surfaceContainer` | `onSurfaceVariant` |
 
 Disabled drops to 38% opacity, per button or for the whole group.
-
-## Not implemented
-
-Compose's `ButtonGroup` does three more things this does not:
-
-- **Overflow.** When the buttons do not fit, Compose collapses the extras into a dropdown menu
-  behind an indicator button. Here, labels shrink instead.
-- **Per-item weights.** Buttons share the width equally.
-- **Vertical groups.**
-
-## Images
-
-Rendered from the shipping components. Regenerate them with:
-
-```
-swift run --package-path Tools/ScreenshotGenerator
-```

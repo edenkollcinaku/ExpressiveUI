@@ -62,11 +62,3 @@ silently discard whatever the call site put in the `Toggle`'s body.
 
 If your row lays out its own text, pass an empty label; the trailing spacer collapses to nothing.
 
-## Images
-
-The plates above are rendered from the shipping component, not drawn by hand, so they cannot drift
-away from what the code does. Regenerate them with:
-
-```
-swift run --package-path Tools/ScreenshotGenerator
-```

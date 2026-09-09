@@ -3,16 +3,13 @@ import XCTest
 
 final class ExpressiveButtonGroupLayoutTests: XCTestCase {
     private func widths(total: CGFloat, count: Int, spacing: CGFloat, pressed: Int?) -> [CGFloat] {
-        (0..<count).map {
-            ExpressiveButtonGroupLayout.width(
-                at: $0,
-                count: count,
-                total: total,
-                spacing: spacing,
-                pressedIndex: pressed,
-                expandedRatio: 0.15
-            )
-        }
+        let base = (total - spacing * CGFloat(count - 1)) / CGFloat(count)
+        return ButtonGroupRow.squeezed(
+            Array(repeating: base, count: count),
+            pressedIndex: pressed,
+            expandedRatio: 0.15,
+            compressionLimit: 24
+        )
     }
 
     func testUnpressedButtonsShareTheRowEqually() {
@@ -36,5 +33,17 @@ final class ExpressiveButtonGroupLayoutTests: XCTestCase {
 
     func testASingleButtonHasNothingToTakeFrom() {
         XCTAssertEqual(widths(total: 200, count: 1, spacing: 12, pressed: 0), [200])
+    }
+
+    /// Past the compression limit the neighbours would start clipping their labels, so the pressed
+    /// button gets less than the ratio asked for rather than the row losing its shape.
+    func testCompressionIsCapped() {
+        let widths = ButtonGroupRow.squeezed(
+            [400, 400],
+            pressedIndex: 0,
+            expandedRatio: 0.15,
+            compressionLimit: 24
+        )
+        XCTAssertEqual(widths, [424, 376])
     }
 }

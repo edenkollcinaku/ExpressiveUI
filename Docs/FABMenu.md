@@ -85,10 +85,3 @@ ExpressiveFABMenu(
 
 Items are ordinary buttons and read their own labels.
 
-## Images
-
-The plates above are rendered from the shipping component. Regenerate them with:
-
-```
-swift run --package-path Tools/ScreenshotGenerator
-```
