@@ -37,6 +37,17 @@ public struct ExpressiveColors: Equatable, Sendable {
     /// Text and icons on `surfaceContainer` — the secondary content tone, not full-strength
     /// `onSurface`.
     public var onSurfaceVariant: Color
+    /// Full-strength content on the page. Used here mostly at 10%, which is what a disabled
+    /// container is made of.
+    public var onSurface: Color
+    /// The surface an elevated button floats on.
+    public var surfaceContainerLow: Color
+    /// The tonal accent: a filled tonal button's container.
+    public var secondaryContainer: Color
+    /// What is legible on `secondaryContainer`.
+    public var onSecondaryContainer: Color
+    /// The quieter border — an outlined button's edge, where `outline` would be too loud.
+    public var outlineVariant: Color
 
     /// The roles added after the first release carry defaults, so call sites written before they
     /// existed keep compiling. Those defaults are the baseline *light* values, which are wrong in
@@ -51,13 +62,23 @@ public struct ExpressiveColors: Equatable, Sendable {
         // public default: the hex initialiser is internal.
         primaryContainer: Color = Color(.sRGB, red: 234 / 255, green: 221 / 255, blue: 255 / 255, opacity: 1),
         surfaceContainer: Color = Color(.sRGB, red: 243 / 255, green: 237 / 255, blue: 247 / 255, opacity: 1),
-        onSurfaceVariant: Color = Color(.sRGB, red: 73 / 255, green: 69 / 255, blue: 79 / 255, opacity: 1)
+        onSurfaceVariant: Color = Color(.sRGB, red: 73 / 255, green: 69 / 255, blue: 79 / 255, opacity: 1),
+        onSurface: Color = Color(.sRGB, red: 29 / 255, green: 27 / 255, blue: 32 / 255, opacity: 1),
+        surfaceContainerLow: Color = Color(.sRGB, red: 247 / 255, green: 242 / 255, blue: 250 / 255, opacity: 1),
+        secondaryContainer: Color = Color(.sRGB, red: 232 / 255, green: 222 / 255, blue: 248 / 255, opacity: 1),
+        onSecondaryContainer: Color = Color(.sRGB, red: 29 / 255, green: 25 / 255, blue: 43 / 255, opacity: 1),
+        outlineVariant: Color = Color(.sRGB, red: 202 / 255, green: 196 / 255, blue: 208 / 255, opacity: 1)
     ) {
         self.primary = primary
         self.onPrimary = onPrimary
         self.primaryContainer = primaryContainer
         self.surfaceContainer = surfaceContainer
         self.onSurfaceVariant = onSurfaceVariant
+        self.onSurface = onSurface
+        self.surfaceContainerLow = surfaceContainerLow
+        self.secondaryContainer = secondaryContainer
+        self.onSecondaryContainer = onSecondaryContainer
+        self.outlineVariant = outlineVariant
         self.onPrimaryContainer = onPrimaryContainer
         self.surfaceContainerHighest = surfaceContainerHighest
         self.outline = outline
@@ -79,7 +100,12 @@ public extension ExpressiveColors {
         outline: Color(hex: 0x79747E),
         primaryContainer: Color(hex: 0xEADDFF),
         surfaceContainer: Color(hex: 0xF3EDF7),
-        onSurfaceVariant: Color(hex: 0x49454F)
+        onSurfaceVariant: Color(hex: 0x49454F),
+        onSurface: Color(hex: 0x1D1B20),
+        surfaceContainerLow: Color(hex: 0xF7F2FA),
+        secondaryContainer: Color(hex: 0xE8DEF8),
+        onSecondaryContainer: Color(hex: 0x1D192B),
+        outlineVariant: Color(hex: 0xCAC4D0)
     )
 
     static let baselineDark = ExpressiveColors(
@@ -90,7 +116,12 @@ public extension ExpressiveColors {
         outline: Color(hex: 0x938F99),
         primaryContainer: Color(hex: 0x4F378B),
         surfaceContainer: Color(hex: 0x211F26),
-        onSurfaceVariant: Color(hex: 0xCAC4D0)
+        onSurfaceVariant: Color(hex: 0xCAC4D0),
+        onSurface: Color(hex: 0xE6E0E9),
+        surfaceContainerLow: Color(hex: 0x1D1B20),
+        secondaryContainer: Color(hex: 0x4A4458),
+        onSecondaryContainer: Color(hex: 0xE8DEF8),
+        outlineVariant: Color(hex: 0x49454F)
     )
 }
 
