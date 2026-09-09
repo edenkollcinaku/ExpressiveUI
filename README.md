@@ -59,13 +59,15 @@ Components read the set from the environment, so styling is one call and never p
 | --- | --- | --- |
 | Switch | `.toggleStyle(.expressive)` | [Docs/Switch.md](Docs/Switch.md) |
 | FAB menu | `ExpressiveFABMenu` | [Docs/FABMenu.md](Docs/FABMenu.md) |
+| Button group | `ExpressiveButtonGroup`, `ExpressiveConnectedButtonGroup` | [Docs/ButtonGroup.md](Docs/ButtonGroup.md) |
 
 ![The switch off and on, in light and dark](Docs/Images/switch-overview.png)
 
 ![The FAB menu closed and open, in light and dark](Docs/Images/fab-menu-overview.png)
 
-More land progressively — dialog, button group, menu, and container transform are queued, roughly
-in that order. `ExpressiveColors` gains roles as they arrive; additions are minor versions and
+![A connected button group, light and dark](Docs/Images/connected-button-group-overview.png)
+
+More land progressively — dialog, menu, and container transform are queued, roughly in that order. `ExpressiveColors` gains roles as they arrive; additions are minor versions and
 existing initialiser calls keep compiling.
 
 ## Status

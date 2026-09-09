@@ -31,10 +31,16 @@ public struct ExpressiveColors: Equatable, Sendable {
     public var surfaceContainerHighest: Color
     /// Borders and inactive control parts that still need to read as a control.
     public var outline: Color
+    /// The surface an unselected button in a group sits on: a step up from the page, and quiet
+    /// enough that a selected sibling filled with `primary` is obviously the selected one.
+    public var surfaceContainer: Color
+    /// Text and icons on `surfaceContainer` — the secondary content tone, not full-strength
+    /// `onSurface`.
+    public var onSurfaceVariant: Color
 
-    /// `primaryContainer` carries a default so that adding it did not break the call sites written
-    /// before it existed. The default is the baseline *light* value, which is wrong in the dark —
-    /// pass the set for the scheme in effect, as `baseline(for:)` does.
+    /// The roles added after the first release carry defaults, so call sites written before they
+    /// existed keep compiling. Those defaults are the baseline *light* values, which are wrong in
+    /// the dark — pass the set for the scheme in effect, as `baseline(for:)` does.
     public init(
         primary: Color,
         onPrimary: Color,
@@ -43,11 +49,15 @@ public struct ExpressiveColors: Equatable, Sendable {
         outline: Color,
         // Spelled out rather than written as `Color(hex: 0xEADDFF)`, which the compiler rejects in a
         // public default: the hex initialiser is internal.
-        primaryContainer: Color = Color(.sRGB, red: 234 / 255, green: 221 / 255, blue: 255 / 255, opacity: 1)
+        primaryContainer: Color = Color(.sRGB, red: 234 / 255, green: 221 / 255, blue: 255 / 255, opacity: 1),
+        surfaceContainer: Color = Color(.sRGB, red: 243 / 255, green: 237 / 255, blue: 247 / 255, opacity: 1),
+        onSurfaceVariant: Color = Color(.sRGB, red: 73 / 255, green: 69 / 255, blue: 79 / 255, opacity: 1)
     ) {
         self.primary = primary
         self.onPrimary = onPrimary
         self.primaryContainer = primaryContainer
+        self.surfaceContainer = surfaceContainer
+        self.onSurfaceVariant = onSurfaceVariant
         self.onPrimaryContainer = onPrimaryContainer
         self.surfaceContainerHighest = surfaceContainerHighest
         self.outline = outline
@@ -67,7 +77,9 @@ public extension ExpressiveColors {
         onPrimaryContainer: Color(hex: 0x21005D),
         surfaceContainerHighest: Color(hex: 0xE6E0E9),
         outline: Color(hex: 0x79747E),
-        primaryContainer: Color(hex: 0xEADDFF)
+        primaryContainer: Color(hex: 0xEADDFF),
+        surfaceContainer: Color(hex: 0xF3EDF7),
+        onSurfaceVariant: Color(hex: 0x49454F)
     )
 
     static let baselineDark = ExpressiveColors(
@@ -76,7 +88,9 @@ public extension ExpressiveColors {
         onPrimaryContainer: Color(hex: 0xEADDFF),
         surfaceContainerHighest: Color(hex: 0x36343B),
         outline: Color(hex: 0x938F99),
-        primaryContainer: Color(hex: 0x4F378B)
+        primaryContainer: Color(hex: 0x4F378B),
+        surfaceContainer: Color(hex: 0x211F26),
+        onSurfaceVariant: Color(hex: 0xCAC4D0)
     )
 }
 

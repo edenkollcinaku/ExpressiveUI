@@ -337,6 +337,162 @@ private struct FABMenuAnatomy: View {
     }
 }
 
+// MARK: - Button groups
+
+private struct ButtonGroupOverview: View {
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach([ColorScheme.light, .dark], id: \.self) { scheme in
+                Panel(scheme: scheme) {
+                    VStack(spacing: 20) {
+                        ExpressiveButtonGroup(items: [
+                            .init(label: "Reply") {},
+                            .init(label: "Forward") {},
+                            .init(label: "Star", isOn: .constant(false))
+                        ])
+                        .frame(width: 300)
+                        Caption(text: scheme == .dark ? "Dark" : "Light", scheme: scheme)
+                    }
+                }
+            }
+        }
+        .frame(width: 760, height: 180)
+    }
+}
+
+private func rangeOptions() -> [ExpressiveConnectedButtonGroupOption<String>] {
+    [
+        .init(value: "Day", label: "Day"),
+        .init(value: "Week", label: "Week"),
+        .init(value: "Month", label: "Month")
+    ]
+}
+
+private struct ConnectedGroupOverview: View {
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach([ColorScheme.light, .dark], id: \.self) { scheme in
+                Panel(scheme: scheme) {
+                    VStack(spacing: 20) {
+                        ExpressiveConnectedButtonGroup(
+                            selection: Binding<String>.constant("Week"),
+                            options: rangeOptions()
+                        )
+                        .frame(width: 300)
+                        Caption(text: scheme == .dark ? "Dark" : "Light", scheme: scheme)
+                    }
+                }
+            }
+        }
+        .frame(width: 760, height: 180)
+    }
+}
+
+/// The connected group's corner rules are the component, so the plate points at corners rather than
+/// at parts. Laid out on a fixed canvas from the group's own geometry: a 320pt row of three 40pt
+/// segments, 2pt apart.
+private struct ConnectedGroupAnatomy: View {
+    private let canvas = CGSize(width: 700, height: 220)
+    private let groupWidth: CGFloat = 260
+    private let height: CGFloat = 40
+    private let scale: CGFloat = 2
+
+    /// Drawn at 2x so a 8pt corner is visible at all; every coordinate below is in drawn points.
+    private var drawnWidth: CGFloat { groupWidth * scale }
+    private var drawnHeight: CGFloat { height * scale }
+    private var centre: CGPoint { CGPoint(x: canvas.width / 2, y: 96) }
+    private var leadingEdge: CGFloat { centre.x - drawnWidth / 2 }
+    private var segmentWidth: CGFloat { (drawnWidth - 2 * scale * 2) / 3 }
+
+    private let legend = [
+        "Outer corner — full",
+        "Inner corner — 8pt",
+        "Selected segment — full on both sides",
+        "Segment spacing — 2pt"
+    ]
+
+    var body: some View {
+        VStack(spacing: 24) {
+            ZStack {
+                ExpressiveConnectedButtonGroup(
+                    selection: Binding<String>.constant("Week"),
+                    options: rangeOptions()
+                )
+                .frame(width: groupWidth)
+                .scaleEffect(scale)
+                .position(centre)
+
+                // 1 — the pill at the group's leading edge.
+                leader(from: CGPoint(x: leadingEdge - 60, y: centre.y), to: CGPoint(x: leadingEdge, y: centre.y))
+                bullet(1, at: CGPoint(x: leadingEdge - 72, y: centre.y))
+
+                // 2 — the seam between the first two segments, from above.
+                leader(
+                    from: CGPoint(x: leadingEdge + segmentWidth, y: 28),
+                    to: CGPoint(x: leadingEdge + segmentWidth, y: centre.y - drawnHeight / 2)
+                )
+                bullet(2, at: CGPoint(x: leadingEdge + segmentWidth, y: 16))
+
+                // 3 — the selected middle segment, from below.
+                leader(from: CGPoint(x: centre.x, y: 176), to: CGPoint(x: centre.x, y: centre.y + drawnHeight / 2))
+                bullet(3, at: CGPoint(x: centre.x, y: 188))
+
+                // 4 — the gap on the far seam.
+                leader(
+                    from: CGPoint(x: leadingEdge + drawnWidth - segmentWidth, y: 28),
+                    to: CGPoint(x: leadingEdge + drawnWidth - segmentWidth, y: centre.y - drawnHeight / 2)
+                )
+                bullet(4, at: CGPoint(x: leadingEdge + drawnWidth - segmentWidth, y: 16))
+            }
+            .frame(width: canvas.width, height: canvas.height)
+
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 40) {
+                    legendRow(1)
+                    legendRow(2)
+                }
+                HStack(spacing: 40) {
+                    legendRow(3)
+                    legendRow(4)
+                }
+            }
+        }
+        .padding(.vertical, 28)
+        .frame(width: 700, height: 360)
+        .background(Color.pageLight)
+    }
+
+    private func leader(from: CGPoint, to: CGPoint) -> some View {
+        Path { path in
+            path.move(to: from)
+            path.addLine(to: to)
+        }
+        .stroke(Color.captionLight.opacity(0.45), lineWidth: 1)
+    }
+
+    private func bullet(_ number: Int, at point: CGPoint) -> some View {
+        marker(number, size: 24, font: 13).position(point)
+    }
+
+    private func legendRow(_ number: Int) -> some View {
+        HStack(spacing: 10) {
+            marker(number, size: 21, font: 12)
+            Text(legend[number - 1])
+                .font(.system(size: 14))
+                .foregroundStyle(Color.captionLight)
+        }
+        .frame(width: 280, alignment: .leading)
+    }
+
+    private func marker(_ number: Int, size: CGFloat, font: CGFloat) -> some View {
+        Text("\(number)")
+            .font(.system(size: font, weight: .semibold))
+            .foregroundStyle(Color.pageLight)
+            .frame(width: size, height: size)
+            .background(Circle().fill(Color.captionLight))
+    }
+}
+
 // MARK: - Rendering
 
 @MainActor
@@ -369,4 +525,7 @@ MainActor.assumeIsolated {
     write(Anatomy(), to: "switch-anatomy.png")
     write(FABMenuOverview(), to: "fab-menu-overview.png")
     write(FABMenuAnatomy(), to: "fab-menu-anatomy.png")
+    write(ButtonGroupOverview(), to: "button-group-overview.png")
+    write(ConnectedGroupOverview(), to: "connected-button-group-overview.png")
+    write(ConnectedGroupAnatomy(), to: "connected-button-group-anatomy.png")
 }
