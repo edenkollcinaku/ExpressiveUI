@@ -62,6 +62,7 @@ spec names rather than at ones tuned by hand.
 | Component | Style | Docs |
 | --- | --- | --- |
 | Button | `.buttonStyle(.expressive)` | [Docs/Button.md](Docs/Button.md) |
+| Carousel | `ExpressiveCarousel` | [Docs/Carousel.md](Docs/Carousel.md) |
 | Switch | `.toggleStyle(.expressive)` | [Docs/Switch.md](Docs/Switch.md) |
 | FAB menu | `ExpressiveFABMenu` | [Docs/FABMenu.md](Docs/FABMenu.md) |
 | Button group | `ExpressiveButtonGroup`, `ExpressiveConnectedButtonGroup` | [Docs/ButtonGroup.md](Docs/ButtonGroup.md) |
@@ -69,6 +70,8 @@ spec names rather than at ones tuned by hand.
 | Split button | `ExpressiveSplitButton` | [Docs/SplitButton.md](Docs/SplitButton.md) |
 
 ![The five button variants, light and dark](Docs/Images/button-variants.png)
+
+![Multi-browse and uncontained carousels](Docs/Images/carousel-overview.png)
 
 ![The switch off and on, in light and dark](Docs/Images/switch-overview.png)
 
