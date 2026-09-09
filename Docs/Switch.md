@@ -54,6 +54,13 @@ grow around them rather than shifting as it scales.
 The check is the accent again, not a hole punched in the thumb. Disabled's 38% opacity is Material's
 disabled alpha.
 
+## Motion
+
+The thumb travels on `ExpressiveMotion.fastSpatial` and the track's colour lands on
+`ExpressiveMotion.fastEffects` — Material's own split between things that move and things that only
+change colour. Running both at the movement's rate is what makes a switch read as fading rather than
+flipping.
+
 ## Why a `ToggleStyle`
 
 Call sites stay ordinary `Toggle`s, which keeps their accessibility for free. The style draws the

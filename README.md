@@ -53,6 +53,10 @@ struct RootView: View {
 
 Components read the set from the environment, so styling is one call and never per-component.
 
+Motion comes from the same place. `ExpressiveMotion` carries Material's six springs — three for
+things that move, three for things that only change colour — so components animate at the rates the
+spec names rather than at ones tuned by hand.
+
 ## Components
 
 | Component | Style | Docs |

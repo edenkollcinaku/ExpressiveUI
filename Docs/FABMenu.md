@@ -41,6 +41,8 @@ content
 Items come out one at a time, 65ms apart, starting with the one nearest the FAB, and go back in the
 opposite order — the column reads as unfolding from the button rather than arriving as a block.
 
+Everything moves on `ExpressiveMotion.fastSpatial`, the spring Material names for movement.
+
 Choosing an item closes the menu first and then runs its action, so a sheet or a navigation push
 never animates on top of a menu that is still open.
 
