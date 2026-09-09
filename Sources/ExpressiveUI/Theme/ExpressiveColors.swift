@@ -21,22 +21,33 @@ public struct ExpressiveColors: Equatable, Sendable {
     /// What is legible drawn *on* `primary`. Not necessarily white: Material picks it by luminance,
     /// so a bright seed wants near-black content here.
     public var onPrimary: Color
-    /// The accent as it reads on a light accent surface — the switch's check glyph.
+    /// The quiet accent surface: a FAB menu's items, and anything else that has to read as the
+    /// accent without competing with the control that is actually the accent.
+    public var primaryContainer: Color
+    /// What is legible drawn on `primaryContainer` — and, on a control that has no container of its
+    /// own, the accent itself: the switch's check glyph.
     public var onPrimaryContainer: Color
     /// The tinted-elevated surface. An inactive switch track.
     public var surfaceContainerHighest: Color
     /// Borders and inactive control parts that still need to read as a control.
     public var outline: Color
 
+    /// `primaryContainer` carries a default so that adding it did not break the call sites written
+    /// before it existed. The default is the baseline *light* value, which is wrong in the dark —
+    /// pass the set for the scheme in effect, as `baseline(for:)` does.
     public init(
         primary: Color,
         onPrimary: Color,
         onPrimaryContainer: Color,
         surfaceContainerHighest: Color,
-        outline: Color
+        outline: Color,
+        // Spelled out rather than written as `Color(hex: 0xEADDFF)`, which the compiler rejects in a
+        // public default: the hex initialiser is internal.
+        primaryContainer: Color = Color(.sRGB, red: 234 / 255, green: 221 / 255, blue: 255 / 255, opacity: 1)
     ) {
         self.primary = primary
         self.onPrimary = onPrimary
+        self.primaryContainer = primaryContainer
         self.onPrimaryContainer = onPrimaryContainer
         self.surfaceContainerHighest = surfaceContainerHighest
         self.outline = outline
@@ -55,7 +66,8 @@ public extension ExpressiveColors {
         onPrimary: .white,
         onPrimaryContainer: Color(hex: 0x21005D),
         surfaceContainerHighest: Color(hex: 0xE6E0E9),
-        outline: Color(hex: 0x79747E)
+        outline: Color(hex: 0x79747E),
+        primaryContainer: Color(hex: 0xEADDFF)
     )
 
     static let baselineDark = ExpressiveColors(
@@ -63,7 +75,8 @@ public extension ExpressiveColors {
         onPrimary: Color(hex: 0x381E72),
         onPrimaryContainer: Color(hex: 0xEADDFF),
         surfaceContainerHighest: Color(hex: 0x36343B),
-        outline: Color(hex: 0x938F99)
+        outline: Color(hex: 0x938F99),
+        primaryContainer: Color(hex: 0x4F378B)
     )
 }
 

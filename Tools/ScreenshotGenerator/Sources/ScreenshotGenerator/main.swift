@@ -212,6 +212,131 @@ private struct Anatomy: View {
     }
 }
 
+// MARK: - FAB menu
+
+/// Two neutral entries. The plates are of the component, so the labels are deliberately generic.
+private func demoItems() -> [ExpressiveFABMenuItem] {
+    [
+        .init(systemImage: "square.and.pencil", label: "Note") {},
+        .init(systemImage: "camera", label: "Photo") {}
+    ]
+}
+
+private struct FABMenuOverview: View {
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach([ColorScheme.light, .dark], id: \.self) { scheme in
+                Panel(scheme: scheme) {
+                    VStack(spacing: 20) {
+                        HStack(alignment: .bottom, spacing: 56) {
+                            ExpressiveFABMenu(isOpen: .constant(false), items: demoItems())
+                            ExpressiveFABMenu(isOpen: .constant(true), items: demoItems())
+                        }
+                        Caption(text: scheme == .dark ? "Dark" : "Light", scheme: scheme)
+                    }
+                }
+            }
+        }
+        .frame(width: 760, height: 320)
+    }
+}
+
+/// One item and the FAB, with the leader lines aimed using the component's own measurements: a 56pt
+/// FAB and a 56pt item, 12pt apart, and an item whose width is its label measured in the same font
+/// the component draws it in.
+private struct FABMenuAnatomy: View {
+    private let label = "Note"
+    private let canvas = CGSize(width: 700, height: 270)
+    private let trailingEdge: CGFloat = 470
+    private let fabCentre = CGPoint(x: 442, y: 212)
+
+    private var itemCentreY: CGFloat { fabCentre.y - 28 - 12 - 28 }
+    private var itemWidth: CGFloat {
+        let font = NSFont.systemFont(ofSize: 16, weight: .medium)
+        let text = (label as NSString).size(withAttributes: [.font: font]).width
+        // icon + spacing + label, inside 24pt of padding on each side.
+        return 24 + 8 + ceil(text) + 48
+    }
+    private var itemLeadingEdge: CGFloat { trailingEdge - itemWidth }
+    private var iconCentreX: CGFloat { itemLeadingEdge + 24 + 12 }
+    private var labelCentreX: CGFloat { itemLeadingEdge + 24 + 24 + 8 + (itemWidth - 24 - 8 - 48) / 2 }
+
+    private let legend = ["FAB", "Menu item", "Item icon", "Item label"]
+
+    var body: some View {
+        VStack(spacing: 24) {
+            ZStack {
+                ExpressiveFABMenu(
+                    isOpen: .constant(true),
+                    items: [.init(systemImage: "square.and.pencil", label: LocalizedStringKey(label)) {}]
+                )
+                // Padded first, then framed, so the menu's own trailing and bottom edges land on
+                // the coordinates the leader lines below are written against.
+                .padding(.trailing, canvas.width - trailingEdge)
+                .padding(.bottom, canvas.height - (fabCentre.y + 28))
+                .frame(width: canvas.width, height: canvas.height, alignment: .bottomTrailing)
+
+                leader(from: CGPoint(x: trailingEdge + 72, y: fabCentre.y), to: CGPoint(x: trailingEdge, y: fabCentre.y))
+                bullet(1, at: CGPoint(x: trailingEdge + 84, y: fabCentre.y))
+
+                leader(from: CGPoint(x: trailingEdge + 72, y: itemCentreY), to: CGPoint(x: trailingEdge, y: itemCentreY))
+                bullet(2, at: CGPoint(x: trailingEdge + 84, y: itemCentreY))
+
+                leader(from: CGPoint(x: iconCentreX, y: 40), to: CGPoint(x: iconCentreX, y: itemCentreY - 28))
+                bullet(3, at: CGPoint(x: iconCentreX, y: 28))
+
+                // Angled away from the FAB, which sits directly below the label.
+                leader(from: CGPoint(x: labelCentreX, y: itemCentreY + 28), to: CGPoint(x: labelCentreX - 130, y: 240))
+                bullet(4, at: CGPoint(x: labelCentreX - 130, y: 240))
+            }
+            .frame(width: canvas.width, height: canvas.height)
+
+            HStack(alignment: .top, spacing: 48) {
+                VStack(alignment: .leading, spacing: 10) {
+                    legendRow(1)
+                    legendRow(2)
+                }
+                VStack(alignment: .leading, spacing: 10) {
+                    legendRow(3)
+                    legendRow(4)
+                }
+            }
+        }
+        .padding(.vertical, 28)
+        .frame(width: 700, height: 400)
+        .background(Color.pageLight)
+    }
+
+    private func leader(from: CGPoint, to: CGPoint) -> some View {
+        Path { path in
+            path.move(to: from)
+            path.addLine(to: to)
+        }
+        .stroke(Color.captionLight.opacity(0.45), lineWidth: 1)
+    }
+
+    private func bullet(_ number: Int, at point: CGPoint) -> some View {
+        marker(number, size: 24, font: 13).position(point)
+    }
+
+    private func legendRow(_ number: Int) -> some View {
+        HStack(spacing: 10) {
+            marker(number, size: 21, font: 12)
+            Text(legend[number - 1])
+                .font(.system(size: 14))
+                .foregroundStyle(Color.captionLight)
+        }
+    }
+
+    private func marker(_ number: Int, size: CGFloat, font: CGFloat) -> some View {
+        Text("\(number)")
+            .font(.system(size: font, weight: .semibold))
+            .foregroundStyle(Color.pageLight)
+            .frame(width: size, height: size)
+            .background(Circle().fill(Color.captionLight))
+    }
+}
+
 // MARK: - Rendering
 
 @MainActor
@@ -242,4 +367,6 @@ MainActor.assumeIsolated {
     write(Overview(), to: "switch-overview.png")
     write(States(), to: "switch-states.png")
     write(Anatomy(), to: "switch-anatomy.png")
+    write(FABMenuOverview(), to: "fab-menu-overview.png")
+    write(FABMenuAnatomy(), to: "fab-menu-anatomy.png")
 }
