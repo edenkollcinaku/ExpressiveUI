@@ -66,6 +66,7 @@ spec names rather than at ones tuned by hand.
 | FAB menu | `ExpressiveFABMenu` | [Docs/FABMenu.md](Docs/FABMenu.md) |
 | Button group | `ExpressiveButtonGroup`, `ExpressiveConnectedButtonGroup` | [Docs/ButtonGroup.md](Docs/ButtonGroup.md) |
 | Segmented buttons | `ExpressiveSegmentedButtons` | [Docs/SegmentedButtons.md](Docs/SegmentedButtons.md) |
+| Split button | `ExpressiveSplitButton` | [Docs/SplitButton.md](Docs/SplitButton.md) |
 
 ![The five button variants, light and dark](Docs/Images/button-variants.png)
 
