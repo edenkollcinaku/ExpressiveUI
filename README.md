@@ -97,4 +97,10 @@ existing initialiser calls keep compiling.
 
 ## Licence
 
-MIT. See [LICENSE](LICENSE).
+MIT for the Swift implementation. See [LICENSE](LICENSE).
+
+The carousel's keyline maths and the loading indicator's shape builder are ports of Google's own
+implementations, which are Apache-2.0. [NOTICE](NOTICE) names the files and carries the
+attribution that licence asks for, and [LICENSE-APACHE-2.0](LICENSE-APACHE-2.0) is a copy of the
+licence itself. Everywhere else the numbers come from the published design tokens, which are used
+as specified rather than copied as code.
