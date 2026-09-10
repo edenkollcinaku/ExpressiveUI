@@ -4,3 +4,7 @@
 *.xcodeproj/xcuserdata/
 DerivedData/
 Tools/
+Docs/Images/poster-16x9.png
+Docs/Images/poster-1x1.png
+Docs/Images/poster-4x5.png
+Docs/Images/poster-9x16.png

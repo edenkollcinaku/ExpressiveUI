@@ -96,6 +96,10 @@ public struct ExpressiveFABMenu: View {
 
     public var body: some View {
         VStack(alignment: .trailing, spacing: 12) {
+            // Closed, the items are scaled to nothing and faded out — but a view that has been
+            // scaled still asks for the space it would have taken, so without this the menu is as
+            // tall as its open state at all times, and a settings row holding one would sit that
+            // far down the screen. Collapsing the height is what makes the closed menu 56x56.
             VStack(alignment: .trailing, spacing: 12) {
                 ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                     MenuItem(
@@ -114,6 +118,8 @@ public struct ExpressiveFABMenu: View {
                     }
                 }
             }
+            .frame(height: isOpen.wrappedValue ? nil : 0, alignment: .bottom)
+            .clipped()
 
             fab
         }
