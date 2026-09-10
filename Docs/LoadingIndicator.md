@@ -28,16 +28,30 @@ ExpressiveLoadingIndicator(shapes: [.pill, .sunny, .oval])
 
 Android builds these with `androidx.graphics.shapes`: a `RoundedPolygon` is a list of vertices with
 per-corner rounding, and a `Morph` matches the cubic curves of two polygons so one can be tweened
-into the other. There is no equivalent here, and porting it is a library in itself.
+into the other.
 
-What every shape in the sequence has in common is that it is **star-shaped about its centre** — a
-ray from the middle crosses the outline exactly once. So each one is written as a radius for every
-angle, normalised so its widest point is 1, and morphing is a straight interpolation of those radii
-at matching angles.
+`MaterialShapes` publishes the figures for every shape — the points, their corner radii, how many
+times they repeat around the centre — so those are what the shapes here are built from, not from
+anybody's eye. Each one is assembled as a polygon, its corners replaced by arcs tangent to both
+edges, and only then flattened into the form the morph needs.
 
-These are approximations, and worth being plain about: the silhouettes, the lobe counts and the
-inner radii are Material's, but corner rounding is a smoothing exponent rather than a real arc. At
-38pt, spinning, it is not a difference you can see.
+Two details of that are worth naming, because both change the silhouette:
+
+- **Edges are shared between the corners at their ends.** A corner takes the cut-back it asked for
+  unless its neighbour wants the same stretch of edge, and then both give way in proportion. Capping
+  every corner at half an edge instead is the obvious thing to do and it is wrong: it starves a big
+  corner sitting next to a small one, which is the difference between a fat four-sided cookie and a
+  thin star.
+- **Straight edges are walked, not sampled at their ends.** Interpolating between two vertices in
+  polar coordinates bows the edge outward, which turns a pentagon into a blob.
+
+What is not ported is `CornerRounding`'s smoothing, which flattens an arc into the edges either side
+of it. Every shape the loading indicator uses leaves it at zero.
+
+The shapes are then stored as a radius for every angle — which works because every one of them is
+**star-shaped about its centre**, so a ray from the middle crosses the outline exactly once. That is
+also what makes morphing a straight interpolation of radii at matching angles. A shape with a dent
+deep enough to hide part of itself from the centre could not be stored this way.
 
 `ExpressiveMaterialShape` is public, so the shapes are usable on their own:
 

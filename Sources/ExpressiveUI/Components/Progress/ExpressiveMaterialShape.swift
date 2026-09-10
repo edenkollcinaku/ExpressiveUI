@@ -14,9 +14,9 @@ import Foundation
 /// between any two of them a straight interpolation of those radii at matching angles, which is
 /// what `Morph` is trying to achieve by matching curves.
 ///
-/// So these are honest approximations, not a port: the silhouettes and the counts are Material's,
-/// the corner rounding is a smoothing exponent rather than a real arc. At the 38pt the indicator
-/// draws them, while spinning, that difference is not one you can see.
+/// The shapes themselves are built from Material's own published figures — the points, the corner
+/// radii, the repeat counts — by ``ExpressiveRoundedPolygon``, and only then flattened into this
+/// form. So the outline is Google's; the representation is ours.
 public struct ExpressiveMaterialShape: Sendable {
     let radius: @Sendable (_ angle: Double) -> Double
 
@@ -30,29 +30,95 @@ public struct ExpressiveMaterialShape: Sendable {
         radius(angle)
     }
 
-    /// A regular star: `numVerticesPerRadius` points, dipping to `innerRadius` between them.
+    /// Built from an outline: the polyline is turned into a radius for every angle, and scaled so
+    /// its furthest point is 1.
     ///
-    /// `sharpness` stands in for `CornerRounding`: the lobes are a raised cosine, and raising it to
-    /// a power pinches them into points or swells them into a cookie's scallops. A low power is a
-    /// large corner radius.
-    static func star(points: Int, innerRadius: Double, sharpness: Double) -> ExpressiveMaterialShape {
-        ExpressiveMaterialShape { angle in
-            let lobe = (cos(Double(points) * angle) + 1) / 2
-            return innerRadius + (1 - innerRadius) * pow(lobe, sharpness)
+    /// This is where the port stops being exact and starts being a representation. Every shape in
+    /// Material's sequence is star-shaped about its centre — a ray from the middle crosses the
+    /// outline once — so nothing is lost in the conversion for these. A shape with a dent deep
+    /// enough to hide part of itself from the centre could not be stored this way, and neither
+    /// could it be morphed by interpolating radii.
+    static func outline(_ points: [CGPoint], centre: CGPoint) -> ExpressiveMaterialShape {
+        // Straight edges have to be walked, not just sampled at their ends: interpolating radius
+        // between two vertices bows the edge outward, which is what turns a pentagon into a blob.
+        var dense: [CGPoint] = []
+        for (index, point) in points.enumerated() {
+            let next = points[(index + 1) % points.count]
+            let length = Double(((next.x - point.x) * (next.x - point.x) + (next.y - point.y) * (next.y - point.y)).squareRoot())
+            let steps = Swift.max(Int((length / 0.004).rounded(.up)), 1)
+            for step in 0..<steps {
+                let t = CGFloat(Double(step) / Double(steps))
+                dense.append(CGPoint(
+                    x: point.x + (next.x - point.x) * t,
+                    y: point.y + (next.y - point.y) * t
+                ))
+            }
+        }
+
+        var polar = dense.map { point -> (angle: Double, radius: Double) in
+            let dx = Double(point.x - centre.x)
+            let dy = Double(point.y - centre.y)
+            var angle = atan2(dy, dx)
+            if angle < 0 { angle += 2 * .pi }
+            return (angle, (dx * dx + dy * dy).squareRoot())
+        }
+        polar.sort { $0.angle < $1.angle }
+
+        let longest = polar.map(\.radius).max() ?? 1
+        guard longest > 0, polar.count > 1 else { return .circle }
+        let normalised = polar.map { (angle: $0.angle, radius: $0.radius / longest) }
+
+        return ExpressiveMaterialShape { angle in
+            var query = angle.truncatingRemainder(dividingBy: 2 * .pi)
+            if query < 0 { query += 2 * .pi }
+
+            // The outline is a loop, so a query before the first sample falls between the last and
+            // the first.
+            var index = normalised.firstIndex { $0.angle >= query } ?? 0
+            if index == 0 {
+                let last = normalised[normalised.count - 1]
+                let first = normalised[0]
+                let span = first.angle + 2 * .pi - last.angle
+                let along = span > 0 ? (query + (query < first.angle ? 2 * .pi : 0) - last.angle) / span : 0
+                return last.radius + (first.radius - last.radius) * Swift.min(Swift.max(along, 0), 1)
+            }
+            index = Swift.min(index, normalised.count - 1)
+            let before = normalised[index - 1]
+            let after = normalised[index]
+            let span = after.angle - before.angle
+            let along = span > 0 ? (query - before.angle) / span : 0
+            return before.radius + (after.radius - before.radius) * along
         }
     }
 
-    /// A regular polygon of `sides`, with its corners rounded by `rounding` — 0 leaves the corners
-    /// sharp, 1 rounds the shape all the way to a circle.
-    static func polygon(sides: Int, rounding: Double) -> ExpressiveMaterialShape {
-        let half = .pi / Double(sides)
-        return ExpressiveMaterialShape { angle in
-            // Distance to a flat edge: the apothem over the cosine of the angle off that edge's
-            // normal, which sweeps from -half to +half as the ray crosses one side.
-            let offEdge = angle.truncatingRemainder(dividingBy: 2 * half) - half
-            let flat = cos(half) / cos(offEdge)
-            return flat + (1 - flat) * rounding
-        }
+    /// `MaterialShapes.customPolygon` — points repeated around the centre, then rounded.
+    static func custom(
+        _ vertices: [RoundedVertex],
+        reps: Int,
+        mirroring: Bool = false,
+        rotation: Double = 0
+    ) -> ExpressiveMaterialShape {
+        let centre = CGPoint(x: 0.5, y: 0.5)
+        let repeated = ExpressiveRoundedPolygon.repeated(vertices, reps: reps, centre: centre, mirroring: mirroring)
+        let turned = rotation == 0
+            ? repeated
+            : repeated.map { RoundedVertex(point: ExpressiveRoundedPolygon.rotate($0.point, degrees: rotation, around: centre), rounding: $0.rounding) }
+        return outline(ExpressiveRoundedPolygon.outline(turned), centre: centre)
+    }
+
+    /// `RoundedPolygon.star`.
+    static func star(
+        points: Int,
+        innerRadius: Double,
+        rounding: Double,
+        rotation: Double = 0
+    ) -> ExpressiveMaterialShape {
+        let centre = CGPoint.zero
+        let vertices = ExpressiveRoundedPolygon.star(points: points, innerRadius: innerRadius, rounding: rounding)
+        let turned = rotation == 0
+            ? vertices
+            : vertices.map { RoundedVertex(point: ExpressiveRoundedPolygon.rotate($0.point, degrees: rotation, around: centre), rounding: $0.rounding) }
+        return outline(ExpressiveRoundedPolygon.outline(turned), centre: centre)
     }
 
     /// The same shape, turned by `rotation` radians.
@@ -70,48 +136,60 @@ public struct ExpressiveMaterialShape: Sendable {
             return 1 / (x * x + y * y).squareRoot()
         }
     }
-
-    /// A capsule: a segment of half-length `1 - halfHeight` swept by a disc of `halfHeight`.
-    ///
-    /// The radius is where the ray leaves that swept region — straight from the disc while the ray
-    /// is steep, and from the quadratic where it runs out past the end of the segment.
-    static func capsule(halfHeight: Double) -> ExpressiveMaterialShape {
-        let half = max(min(halfHeight, 1), 0.01)
-        let reach = 1 - half
-        return ExpressiveMaterialShape { angle in
-            let dx = abs(cos(angle))
-            let dy = abs(sin(angle))
-            if dy > 0 {
-                let alongFlank = half / dy
-                if alongFlank * dx <= reach { return alongFlank }
-            }
-            // (r·dx - reach)² + (r·dy)² = half²
-            let a = 1.0
-            let b = -2 * reach * dx
-            let c = reach * reach - half * half
-            let discriminant = max(b * b - 4 * a * c, 0)
-            return (-b + discriminant.squareRoot()) / (2 * a)
-        }
-    }
 }
 
 public extension ExpressiveMaterialShape {
     /// `MaterialShapes.Circle`.
     static let circle = ExpressiveMaterialShape { _ in 1 }
+
     /// `MaterialShapes.Oval` — a circle squashed to 0.64 and turned back 45°.
     static let oval = ellipse(aspect: 0.64, rotation: -.pi / 4)
+
     /// `MaterialShapes.Pill`.
-    static let pill = capsule(halfHeight: 0.55)
-    /// `MaterialShapes.Pentagon`, stood on its base with a vertex at the top.
-    static let pentagon = polygon(sides: 5, rounding: 0.25).rotated(by: -.pi / 2)
-    /// `MaterialShapes.Sunny` — an 8-pointed star at `innerRadius` 0.8, lightly rounded.
-    static let sunny = star(points: 8, innerRadius: 0.8, sharpness: 2.2)
+    static let pill = custom(
+        [
+            RoundedVertex(0.961, 0.039, 0.426),
+            RoundedVertex(1.001, 0.428),
+            RoundedVertex(1.000, 0.609, 1.000)
+        ],
+        reps: 2,
+        mirroring: true
+    )
+
+    /// `MaterialShapes.Pentagon`.
+    static let pentagon = custom(
+        [
+            RoundedVertex(0.500, -0.009, 0.172),
+            RoundedVertex(1.030, 0.365, 0.164),
+            RoundedVertex(0.828, 0.970, 0.169)
+        ],
+        reps: 1,
+        mirroring: true
+    )
+
+    /// `MaterialShapes.Sunny` — eight points at an inner radius of 0.8, rounded by 0.15.
+    static let sunny = star(points: 8, innerRadius: 0.8, rounding: 0.15)
+
     /// `MaterialShapes.Cookie4Sided`.
-    static let cookie4Sided = star(points: 4, innerRadius: 0.76, sharpness: 0.85)
-    /// `MaterialShapes.Cookie9Sided` — 9 points at 0.8, rounded so far they scallop.
-    static let cookie9Sided = star(points: 9, innerRadius: 0.8, sharpness: 0.7)
+    static let cookie4Sided = custom(
+        [
+            RoundedVertex(1.237, 1.236, 0.258),
+            RoundedVertex(0.500, 0.918, 0.233)
+        ],
+        reps: 4
+    )
+
+    /// `MaterialShapes.Cookie9Sided` — nine points at 0.8, rounded by 0.5, stood on a vertex.
+    static let cookie9Sided = star(points: 9, innerRadius: 0.8, rounding: 0.5, rotation: -90)
+
     /// `MaterialShapes.SoftBurst` — ten soft lobes.
-    static let softBurst = star(points: 10, innerRadius: 0.78, sharpness: 1.2)
+    static let softBurst = custom(
+        [
+            RoundedVertex(0.193, 0.277, 0.053),
+            RoundedVertex(0.176, 0.055, 0.053)
+        ],
+        reps: 10
+    )
 
     /// `LoadingIndicatorDefaults.IndeterminateIndicatorPolygons`, in Material's own order.
     static let indeterminateSequence: [ExpressiveMaterialShape] = [
