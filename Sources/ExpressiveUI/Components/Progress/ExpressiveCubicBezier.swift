@@ -13,6 +13,8 @@ struct ExpressiveCubicBezier {
     static let emphasizedAccelerate = ExpressiveCubicBezier(x1: 0.3, y1: 0, x2: 0.8, y2: 0.15)
     /// `MotionTokens.EasingStandardCubicBezier`.
     static let standard = ExpressiveCubicBezier(x1: 0.2, y1: 0, x2: 0, y2: 1)
+    /// `MotionTokens.EasingEmphasizedDecelerateCubicBezier`.
+    static let emphasizedDecelerate = ExpressiveCubicBezier(x1: 0.05, y1: 0.7, x2: 0.1, y2: 1)
 
     func callAsFunction(_ fraction: Double) -> Double {
         let t = Swift.min(Swift.max(fraction, 0), 1)
@@ -109,5 +111,54 @@ enum ExpressiveLinearProgressMotion {
             }
         }
         return free
+    }
+}
+
+
+/// What a circular indeterminate indicator is doing at a given moment.
+///
+/// Its six seconds are not one motion but three laid over each other: the whole thing turns three
+/// times, the arc's own start angle steps round in quarters, and the arc itself grows and shrinks.
+/// The quarter-turns are the part that gives it its character — it lunges, waits, lunges again —
+/// and they are keyframes rather than a curve, so they are spelled out here.
+enum ExpressiveCircularProgressMotion {
+    /// `CircularAnimationProgressDuration`.
+    static let cycle: Double = 6.0
+    /// `CircularGlobalRotationDegreesTarget` — three full turns per cycle.
+    static let globalRotation: Double = 1080
+    /// `CircularAnimationAdditionalRotationDuration` and `...Delay`.
+    static let stepDuration: Double = 0.3
+    static let stepInterval: Double = 1.5
+    /// `CircularIndeterminateMinProgress` and `...MaxProgress`.
+    static let minimumSweep: Double = 0.1
+    static let maximumSweep: Double = 0.87
+
+    /// Where the arc's start sits, in degrees, at `time` seconds into the loop.
+    static func rotation(at time: Double) -> Double {
+        let now = time.truncatingRemainder(dividingBy: cycle)
+        let steady = now / cycle * globalRotation
+
+        // Four quarter-turns, each taking 300ms and then holding until the next 1500ms mark.
+        var stepped = 0.0
+        for step in 0..<4 {
+            let begins = Double(step) * stepInterval
+            let elapsed = now - begins
+            if elapsed <= 0 { break }
+            stepped += 90 * (elapsed >= stepDuration
+                ? 1
+                : ExpressiveCubicBezier.emphasizedDecelerate(elapsed / stepDuration))
+        }
+        return steady + stepped
+    }
+
+    /// How much of the circle the arc covers, as a fraction, at `time` seconds into the loop.
+    static func sweep(at time: Double) -> Double {
+        let now = time.truncatingRemainder(dividingBy: cycle)
+        let half = cycle / 2
+        if now <= half {
+            return minimumSweep + (maximumSweep - minimumSweep) * (now / half)
+        }
+        let closing = ExpressiveCubicBezier.standard((now - half) / half)
+        return maximumSweep - (maximumSweep - minimumSweep) * closing
     }
 }

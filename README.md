@@ -72,7 +72,8 @@ spec names rather than at ones tuned by hand.
 | Split button | `ExpressiveSplitButton` | [Docs/SplitButton.md](Docs/SplitButton.md) |
 | Menu | `ExpressiveMenu` | [Docs/Menu.md](Docs/Menu.md) |
 | Loading indicator | `ExpressiveLoadingIndicator` | [Docs/LoadingIndicator.md](Docs/LoadingIndicator.md) |
-| Progress indicator | `ExpressiveLinearProgressIndicator`, `ExpressiveLinearWavyProgressIndicator` | [Docs/LinearProgressIndicator.md](Docs/LinearProgressIndicator.md) |
+| Progress indicator, linear | `ExpressiveLinearProgressIndicator`, `ExpressiveLinearWavyProgressIndicator` | [Docs/LinearProgressIndicator.md](Docs/LinearProgressIndicator.md) |
+| Progress indicator, circular | `ExpressiveCircularProgressIndicator`, `ExpressiveCircularWavyProgressIndicator` | [Docs/CircularProgressIndicator.md](Docs/CircularProgressIndicator.md) |
 
 ![The five button variants, light and dark](Docs/Images/button-variants.png)
 
