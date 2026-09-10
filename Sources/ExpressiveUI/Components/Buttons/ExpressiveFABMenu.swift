@@ -5,8 +5,12 @@ import SwiftUI
 /// The icon is an SF Symbol name so a call site needs no asset catalogue; the label is a
 /// `LocalizedStringKey`, which means a literal at the call site is looked up in the app's
 /// `Localizable.strings` for free.
-public struct ExpressiveFABMenuItem: Identifiable {
-    public let id = UUID()
+/// An item is a description of a button, not a piece of data, and a menu's items do not move
+/// around: which one this is *is* its position in the list. So there is no `id` here and the menu
+/// keys on the index instead. An `id` that was minted per value would change every time a call site
+/// rebuilt its array — which a `body` does on any state change — and SwiftUI would replace the
+/// items rather than animate the ones it already had, silently losing the staggered unfurl.
+public struct ExpressiveFABMenuItem {
     public var systemImage: String
     public var label: LocalizedStringKey
     public var action: () -> Void
@@ -101,7 +105,7 @@ public struct ExpressiveFABMenu: View {
             // tall as its open state at all times, and a settings row holding one would sit that
             // far down the screen. Collapsing the height is what makes the closed menu 56x56.
             VStack(alignment: .trailing, spacing: 12) {
-                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                ForEach(Array(items.enumerated()), id: \.offset) { index, item in
                     MenuItem(
                         item: item,
                         colors: colors,

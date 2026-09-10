@@ -6,8 +6,8 @@ import SwiftUI
 /// `SelectableDropdownMenuItem` — and so does this, chosen by the initialiser you call. A checkable
 /// item owns a binding and swaps its leading icon when checked; a selectable one is told whether it
 /// is the chosen one and still runs an action.
-public struct ExpressiveMenuItem: Identifiable {
-    public let id = UUID()
+/// Identity is positional — see ``ExpressiveFABMenuItem`` for why these carry no `id`.
+public struct ExpressiveMenuItem {
     public var label: LocalizedStringKey
     public var systemImage: String?
     /// The icon that replaces `systemImage` while the item is checked or selected —
@@ -115,8 +115,8 @@ public struct ExpressiveMenuItem: Identifiable {
 
 /// A run of related items inside a menu, with an optional label above them — Compose's
 /// `DropdownMenuGroup`.
-public struct ExpressiveMenuGroup: Identifiable {
-    public let id = UUID()
+/// Identity is positional — see ``ExpressiveFABMenuItem`` for why these carry no `id`.
+public struct ExpressiveMenuGroup {
     public var label: LocalizedStringKey?
     public var items: [ExpressiveMenuItem]
 
@@ -167,7 +167,7 @@ public struct ExpressiveMenu: View {
 
     public var body: some View {
         VStack(spacing: gap) {
-            ForEach(Array(groups.enumerated()), id: \.element.id) { index, group in
+            ForEach(Array(groups.enumerated()), id: \.offset) { index, group in
                 GroupView(
                     group: group,
                     corners: ExpressiveMenuShapes.group(index: index, count: groups.count),
@@ -213,7 +213,7 @@ public struct ExpressiveMenu: View {
                         .padding(.vertical, 2)
                 }
 
-                ForEach(Array(group.items.enumerated()), id: \.element.id) { index, item in
+                ForEach(Array(group.items.enumerated()), id: \.offset) { index, item in
                     ItemView(
                         item: item,
                         corners: ExpressiveMenuShapes.item(

@@ -5,8 +5,8 @@ import SwiftUI
 /// Compose's `ButtonGroupScope` has two kinds of item, and so does this: a `clickableItem`, which
 /// runs an action, and a `toggleableItem`, which owns a checked state. Which one you get is decided
 /// by the initialiser you call.
-public struct ExpressiveButtonGroupItem: Identifiable {
-    public let id = UUID()
+/// Identity is positional — see ``ExpressiveFABMenuItem`` for why these carry no `id`.
+public struct ExpressiveButtonGroupItem {
     public var label: LocalizedStringKey
     public var systemImage: String?
     public var isEnabled: Bool
@@ -99,7 +99,7 @@ public struct ExpressiveButtonGroup: View {
             weights: items.map(\.weight),
             onVisibleCountChange: { visibleCount = $0 }
         ) {
-            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+            ForEach(Array(items.enumerated()), id: \.offset) { index, item in
                 button(item, at: index)
                     .accessibilityHidden(index >= visibleCount)
             }
@@ -148,7 +148,9 @@ public struct ExpressiveButtonGroup: View {
     /// while everything fits, so it costs nothing in the common case.
     private var overflowIndicator: some View {
         Menu {
-            ForEach(items.dropFirst(visibleCount)) { item in
+            // Enumerated before dropping, so an item keeps the same identity whether or not the
+            // ones ahead of it have overflowed.
+            ForEach(Array(items.enumerated()).dropFirst(visibleCount), id: \.offset) { _, item in
                 Button {
                     activate(item)
                 } label: {
