@@ -121,11 +121,7 @@ public struct ExpressiveButtonStyle: ButtonStyle {
                 }
                 // `ElevatedButtonTokens.ContainerElevation` is level 1; every other variant sits flat
                 // on the surface.
-                .shadow(
-                    color: .black.opacity(variant == .elevated && isEnabled ? 0.20 : 0),
-                    radius: 3,
-                    y: 1
-                )
+                .expressiveElevation(variant == .elevated && isEnabled ? .level1 : .level0)
                 .animation(ExpressiveMotion.fastSpatial, value: configuration.isPressed)
                 .animation(ExpressiveMotion.fastEffects, value: isEnabled)
         }

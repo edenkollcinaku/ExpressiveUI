@@ -48,6 +48,11 @@ public struct ExpressiveColors: Equatable, Sendable {
     public var onSecondaryContainer: Color
     /// The quieter border — an outlined button's edge, where `outline` would be too loud.
     public var outlineVariant: Color
+    /// The third accent. Material reserves it for selection *inside* a surface that is already
+    /// accented — a chosen menu item, where `primary` would fight the control that opened the menu.
+    public var tertiaryContainer: Color
+    /// What is legible on `tertiaryContainer`.
+    public var onTertiaryContainer: Color
 
     /// The roles added after the first release carry defaults, so call sites written before they
     /// existed keep compiling. Those defaults are the baseline *light* values, which are wrong in
@@ -67,7 +72,9 @@ public struct ExpressiveColors: Equatable, Sendable {
         surfaceContainerLow: Color = Color(.sRGB, red: 247 / 255, green: 242 / 255, blue: 250 / 255, opacity: 1),
         secondaryContainer: Color = Color(.sRGB, red: 232 / 255, green: 222 / 255, blue: 248 / 255, opacity: 1),
         onSecondaryContainer: Color = Color(.sRGB, red: 29 / 255, green: 25 / 255, blue: 43 / 255, opacity: 1),
-        outlineVariant: Color = Color(.sRGB, red: 202 / 255, green: 196 / 255, blue: 208 / 255, opacity: 1)
+        outlineVariant: Color = Color(.sRGB, red: 202 / 255, green: 196 / 255, blue: 208 / 255, opacity: 1),
+        tertiaryContainer: Color = Color(.sRGB, red: 255 / 255, green: 216 / 255, blue: 228 / 255, opacity: 1),
+        onTertiaryContainer: Color = Color(.sRGB, red: 49 / 255, green: 17 / 255, blue: 29 / 255, opacity: 1)
     ) {
         self.primary = primary
         self.onPrimary = onPrimary
@@ -79,6 +86,8 @@ public struct ExpressiveColors: Equatable, Sendable {
         self.secondaryContainer = secondaryContainer
         self.onSecondaryContainer = onSecondaryContainer
         self.outlineVariant = outlineVariant
+        self.tertiaryContainer = tertiaryContainer
+        self.onTertiaryContainer = onTertiaryContainer
         self.onPrimaryContainer = onPrimaryContainer
         self.surfaceContainerHighest = surfaceContainerHighest
         self.outline = outline
@@ -105,7 +114,9 @@ public extension ExpressiveColors {
         surfaceContainerLow: Color(hex: 0xF7F2FA),
         secondaryContainer: Color(hex: 0xE8DEF8),
         onSecondaryContainer: Color(hex: 0x1D192B),
-        outlineVariant: Color(hex: 0xCAC4D0)
+        outlineVariant: Color(hex: 0xCAC4D0),
+        tertiaryContainer: Color(hex: 0xFFD8E4),
+        onTertiaryContainer: Color(hex: 0x31111D)
     )
 
     static let baselineDark = ExpressiveColors(
@@ -121,7 +132,9 @@ public extension ExpressiveColors {
         surfaceContainerLow: Color(hex: 0x1D1B20),
         secondaryContainer: Color(hex: 0x4A4458),
         onSecondaryContainer: Color(hex: 0xE8DEF8),
-        outlineVariant: Color(hex: 0x49454F)
+        outlineVariant: Color(hex: 0x49454F),
+        tertiaryContainer: Color(hex: 0x633B48),
+        onTertiaryContainer: Color(hex: 0xFFD8E4)
     )
 }
 

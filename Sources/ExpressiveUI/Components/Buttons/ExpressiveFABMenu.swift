@@ -139,7 +139,7 @@ public struct ExpressiveFABMenu: View {
                         style: .continuous
                     )
                 )
-                .shadow(color: .black.opacity(0.22), radius: 10, y: 6)
+                .expressiveElevation(.level3)
         }
         .buttonStyle(PressableScale())
         .accessibilityLabel(isOpen.wrappedValue ? openedAccessibilityLabel : closedAccessibilityLabel)
@@ -181,7 +181,7 @@ public struct ExpressiveFABMenu: View {
                 .padding(.horizontal, 24)
                 .frame(minWidth: height, minHeight: height)
                 .background(colors.primaryContainer, in: Capsule())
-                .shadow(color: .black.opacity(0.18), radius: 4, y: 3)
+                .expressiveElevation(.level2)
             }
             .buttonStyle(PressableScale())
             // Without this the row would stretch to whatever the overlay gives it; an item is as
