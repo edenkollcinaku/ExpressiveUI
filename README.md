@@ -71,6 +71,7 @@ spec names rather than at ones tuned by hand.
 | Segmented buttons | `ExpressiveSegmentedButtons` | [Docs/SegmentedButtons.md](Docs/SegmentedButtons.md) |
 | Split button | `ExpressiveSplitButton` | [Docs/SplitButton.md](Docs/SplitButton.md) |
 | Menu | `ExpressiveMenu` | [Docs/Menu.md](Docs/Menu.md) |
+| Loading indicator | `ExpressiveLoadingIndicator` | [Docs/LoadingIndicator.md](Docs/LoadingIndicator.md) |
 
 ![The five button variants, light and dark](Docs/Images/button-variants.png)
 
